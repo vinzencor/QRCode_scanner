@@ -1,68 +1,120 @@
 'use client'
 import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { QRReader } from '@blackbox-vision/react-qr-reader';
+import { QrReader } from 'react-qr-reader';
 
-function QRTool() {
+const QRCodeTool = () => {
     const [text, setText] = useState('');
-    const [scanResult, setScanResult] = useState('');
     const [showScanner, setShowScanner] = useState(false);
+    const [scanResult, setScanResult] = useState('');
 
-    // const handleScan = (data) => {
-    //     if (data) {
-    //         setScanResult(data);
-    //         setShowScanner(false); // Close scanner after successful scan
-    //     }
-    // };
+    const handleScan = (data) => {
+        if (data) setScanResult(data);
+    };
 
     const handleError = (err) => {
-        console.error('QR Scan Error:', err);
+        console.error(err);
     };
 
     return (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-            <h2>QR Code Generator & Scanner</h2>
+        <div>
+            <div style={styles.container}>
+            <h2 style={styles.title}>QR Code Generator & Scanner</h2>
 
-            <input
-                type="text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Enter text to generate QR"
-                style={{ padding: '10px', fontSize: '16px', width: '250px' }}
-            />
-            <div style={{ margin: '20px', display: 'flex', justifyContent: 'center' }}>
-                <QRCodeSVG value={text || ' '} />
+            <div style={styles.card}>
+                <input
+                    type="text"
+                    value={text}
+                    onChange={(e) => setText(e.target.value)}
+                    placeholder="Enter text to generate QR"
+                    style={styles.input}
+                />
+
+                <div style={styles.qrWrapper}>
+                    <QRCodeSVG value={text || ' '} size={200} />
+                </div>
+
+                <button onClick={() => setShowScanner(!showScanner)} style={styles.button}>
+                    {showScanner ? 'Close Scanner' : 'Open Camera to Scan QR'}
+                </button>
+
+                {showScanner && (
+                    <div style={styles.scannerWrapper}>
+                        <QrReader
+                            constraints={{ facingMode: 'environment' }}
+                            scanDelay={300}
+                            onResult={(result, error) => {
+                                if (result) handleScan(result?.text);
+                                if (error) handleError(error);
+                            }}
+                            style={{ width: '100%' }}
+                        />
+                    </div>
+                )}
+
+                {scanResult && (
+                    <div style={styles.result}>
+                        <strong>Scanned Data:</strong> <span>{scanResult}</span>
+                    </div>
+                )}
             </div>
-
-            <button onClick={() => setShowScanner(!showScanner)} style={{ padding: '10px 20px' }}>
-                {showScanner ? 'Close Scanner' : 'Open Camera to Scan QR'}
-            </button>
-
-            {showScanner && (
-                <div style={{ marginTop: '20px' }}>
-                    <QRReader
-                        onResult={(result, error) => {
-                            if (!!result) {
-                                setScanResult(result?.text);
-                                setShowScanner(false);
-                            }
-                            if (!!error) {
-                                console.error('QR Scan Error:', error);
-                            }
-                        }}
-                        constraints={{ facingMode: 'environment' }}
-                        containerStyle={{ width: '300px', margin: 'auto' }}
-                    />
-                </div>
-            )}
-
-            {scanResult && (
-                <div style={{ marginTop: '20px' }}>
-                    <strong>Scanned Data:</strong> {scanResult}
-                </div>
-            )}
+        </div>
         </div>
     );
-}
+};
 
-export default QRTool;
+const styles = {
+    container: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '60px 20px',
+        backgroundColor: '#f4f4f4',
+        minHeight: '100vh',
+        fontFamily: 'Arial, sans-serif',
+    },
+    title: {
+        marginBottom: '40px',
+    },
+    card: {
+        backgroundColor: '#fff',
+        padding: '40px',
+        borderRadius: '10px',
+        boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+        maxWidth: '400px',
+        width: '100%',
+        textAlign: 'center',
+    },
+    input: {
+        padding: '15px',
+        fontSize: '16px',
+        width: '100%',
+        marginBottom: '20px',
+        border: '1px solid #ccc',
+        borderRadius: '6px',
+    },
+    qrWrapper: {
+        marginBottom: '20px',
+    },
+    button: {
+        padding: '12px 25px',
+        fontSize: '16px',
+        backgroundColor: '#007bff',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '6px',
+        cursor: 'pointer',
+    },
+    scannerWrapper: {
+        marginTop: '20px',
+        width: '100%',
+    },
+    result: {
+        marginTop: '20px',
+        textAlign: 'left',
+        wordBreak: 'break-word',
+        fontSize: '14px',
+    },
+};
+
+export default QRCodeTool;
