@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { QrReader } from 'react-qr-reader';
 
+
 const QRCodeTool = () => {
     const [text, setText] = useState('');
     const [showScanner, setShowScanner] = useState(false);
